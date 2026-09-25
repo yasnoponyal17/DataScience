@@ -22,23 +22,7 @@ warnings.filterwarnings('ignore')
 print("Все библиотеки успешно импортированы!")
 
 # Загружаем датасет
-# Если у вас есть файл insurance.csv, используйте эту строку:
-# df = pd.read_csv('insurance.csv')
-# Для демонстрации создадим небольшой пример данных
-# В реальной работе вы будете загружать полный датасет
-sample_data = {
-'age': [19, 18, 28, 33, 32, 31, 46, 37, 37, 60],
-'sex': ['female', 'male', 'male', 'male', 'male', 'female', 'female', 'female', 'male',
-'female'],
-'bmi': [27.9, 33.77, 33.0, 22.705, 28.88, 25.74, 33.44, 27.74, 29.83, 25.84],
-'children': [0, 1, 3, 0, 0, 0, 1, 3, 2, 0],
-'smoker': ['yes', 'no', 'no', 'no', 'no', 'no', 'no', 'no', 'no', 'no'],
-'region': ['southwest', 'southeast', 'southeast', 'northwest', 'northwest',
-'southeast', 'southeast', 'northwest', 'northeast', 'northwest'],
-'charges': [16884.924, 1725.5523, 4449.462, 21984.47061, 3866.8552,
-3756.6216, 8240.5896, 7281.5056, 6406.4107, 28923.13692]
-}
-df = pd.DataFrame(sample_data)
+df = pd.read_csv('insurance.csv')
 print("Данные успешно загружены!")
 print(f"Размер датасета: {df.shape[0]} строк, {df.shape[1]} столбцов")
 
@@ -80,29 +64,29 @@ for col in categorical_columns:
 # Создаем фигуру с несколькими подграфиками
 fig, axes = plt.subplots(2, 2, figsize=(15, 12))
 # Гистограмма распределения стоимости страховки
-axes[0, 0].hist(df['charges'], bins=20, alpha=0.7, color='skyblue', edgecolor='black')
+axes[0, 0].hist(df['expenses'], bins=20, alpha=0.7, color='skyblue', edgecolor='black')
 axes[0, 0].set_title('Распределение стоимости страховки')
-axes[0, 0].set_xlabel('Стоимость (charges)')
+axes[0, 0].set_xlabel('Стоимость (expenses)')
 axes[0, 0].set_ylabel('Количество клиентов')
-# Ящик с усами для charges
-axes[0, 1].boxplot(df['charges'])
+# Ящик с усами для expenses
+axes[0, 1].boxplot(df['expenses'])
 axes[0, 1].set_title('Ящик с усами для стоимости страховки')
-axes[0, 1].set_ylabel('Стоимость (charges)')
+axes[0, 1].set_ylabel('Стоимость (expenses)')
 # Гистограмма с кривой плотности
-sns.histplot(df['charges'], kde=True, ax=axes[1, 0])
+sns.histplot(df['expenses'], kde=True, ax=axes[1, 0])
 axes[1, 0].set_title('Распределение с кривой плотности')
-axes[1, 0].set_xlabel('Стоимость (charges)')
+axes[1, 0].set_xlabel('Стоимость (expenses)')
 
 # Статистика
-axes[1, 1].text(0.1, 0.8, f'Среднее: ${df["charges"].mean():.2f}', fontsize=12,
+axes[1, 1].text(0.1, 0.8, f'Среднее: ${df["expenses"].mean():.2f}', fontsize=12,
 transform=axes[1, 1].transAxes)
-axes[1, 1].text(0.1, 0.7, f'Медиана: ${df["charges"].median():.2f}', fontsize=12,
+axes[1, 1].text(0.1, 0.7, f'Медиана: ${df["expenses"].median():.2f}', fontsize=12,
 transform=axes[1, 1].transAxes)
-axes[1, 1].text(0.1, 0.6, f'Стд. отклонение: ${df["charges"].std():.2f}', fontsize=12,
+axes[1, 1].text(0.1, 0.6, f'Стд. отклонение: ${df["expenses"].std():.2f}', fontsize=12,
 transform=axes[1, 1].transAxes)
-axes[1, 1].text(0.1, 0.5, f'Минимум: ${df["charges"].min():.2f}', fontsize=12,
+axes[1, 1].text(0.1, 0.5, f'Минимум: ${df["expenses"].min():.2f}', fontsize=12,
 transform=axes[1, 1].transAxes)
-axes[1, 1].text(0.1, 0.4, f'Максимум: ${df["charges"].max():.2f}', fontsize=12,
+axes[1, 1].text(0.1, 0.4, f'Максимум: ${df["expenses"].max():.2f}', fontsize=12,
 transform=axes[1, 1].transAxes)
 axes[1, 1].set_title('Основная статистика')
 axes[1, 1].axis('off')
@@ -110,11 +94,11 @@ plt.tight_layout()
 plt.show()
 
 # Выводы о распределении
-print("Анализ целевой переменной (charges):")
-print(f"• Среднее значение: ${df['charges'].mean():.2f}")
-print(f"• Медиана: ${df['charges'].median():.2f}")
-print(f"• Разброс данных: от ${df['charges'].min():.2f} до ${df['charges'].max():.2f}")
-if df['charges'].mean() > df['charges'].median():
+print("Анализ целевой переменной (expenses):")
+print(f"• Среднее значение: ${df['expenses'].mean():.2f}")
+print(f"• Медиана: ${df['expenses'].median():.2f}")
+print(f"• Разброс данных: от ${df['expenses'].min():.2f} до ${df['expenses'].max():.2f}")
+if df['expenses'].mean() > df['expenses'].median():
 	print("• Распределение смещено вправо (есть клиенты с очень высокой стоимостью)")
 else:
 	print("• Распределение симметричное")
@@ -125,17 +109,17 @@ fig, axes = plt.subplots(2, 2, figsize=(15, 12))
 axes = axes.ravel() # Делаем массив одномерным для удобства
 for i, feature in enumerate(numeric_features):
 # Диаграмма рассеяния
-	axes[i].scatter(df[feature], df['charges'], alpha=0.6, color='coral')
+	axes[i].scatter(df[feature], df['expenses'], alpha=0.6, color='coral')
 	axes[i].set_xlabel(feature)
-	axes[i].set_ylabel('charges')
-	axes[i].set_title(f'Зависимость charges от {feature}')
+	axes[i].set_ylabel('expenses')
+	axes[i].set_title(f'Зависимость expenses от {feature}')
 	# Добавляем линию тренда
-	z = np.polyfit(df[feature], df['charges'], 1)
+	z = np.polyfit(df[feature], df['expenses'], 1)
 	p = np.poly1d(z)
 	axes[i].plot(df[feature], p(df[feature]), "r--", alpha=0.8)
 
 # Корреляционная матрица
-numeric_df = df[numeric_features + ['charges']]
+numeric_df = df[numeric_features + ['expenses']]
 correlation_matrix = numeric_df.corr()
 sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', center=0, ax=axes[3])
 axes[3].set_title('Корреляционная матрица')
@@ -143,11 +127,11 @@ plt.tight_layout()
 plt.show()
 
 # Выводим корреляции с целевой переменной
-print("Корреляция числовых признаков с charges:")
+print("Корреляция числовых признаков с expenses:")
 correlations = df[numeric_features +
-['charges']].corr()['charges'].sort_values(ascending=False)
+['expenses']].corr()['expenses'].sort_values(ascending=False)
 for feature, corr in correlations.items():
-	if feature != 'charges':
+	if feature != 'expenses':
 		print(f"• {feature}: {corr:.3f}")
 		if abs(corr) > 0.5:
 			print(" → Сильная связь")
@@ -163,19 +147,19 @@ axes = axes.ravel()
 
 for i, feature in enumerate(categorical_features):
 # Ящик с усами для каждой категории
-	df.boxplot(column='charges', by=feature, ax=axes[i])
-	axes[i].set_title(f'Распределение charges по {feature}')
+	df.boxplot(column='expenses', by=feature, ax=axes[i])
+	axes[i].set_title(f'Распределение expenses по {feature}')
 	axes[i].set_xlabel(feature)
-	axes[i].set_ylabel('charges')
+	axes[i].set_ylabel('expenses')
 
 # Столбчатая диаграмма средних значений
-mean_charges = df.groupby('smoker')['charges'].mean()
-axes[3].bar(mean_charges.index, mean_charges.values, color=['lightcoral', 'lightblue'])
+mean_expenses = df.groupby('smoker')['expenses'].mean()
+axes[3].bar(mean_expenses.index, mean_expenses.values, color=['lightcoral', 'lightblue'])
 axes[3].set_title('Средняя стоимость страховки: курящие vs некурящие')
 axes[3].set_xlabel('Статус курения')
 axes[3].set_ylabel('Средняя стоимость')
 # Добавляем значения на столбцы
-for i, v in enumerate(mean_charges.values):
+for i, v in enumerate(mean_expenses.values):
 	axes[3].text(i, v + 500, f'${v:.0f}', ha='center', va='bottom')
 
 plt.tight_layout()
@@ -184,7 +168,7 @@ plt.show()
 print("Анализ категориальных признаков:")
 for feature in categorical_features:
 	print(f"\n{feature.upper()}:")
-	group_stats = df.groupby(feature)['charges'].agg(['mean', 'median', 'std', 'count'])
+	group_stats = df.groupby(feature)['expenses'].agg(['mean', 'median', 'std', 'count'])
 	print(group_stats)
 
 
@@ -201,7 +185,7 @@ def find_outliers_iqr(data, column):
 
 # Анализируем выбросы для числовых признаков
 print("Анализ выбросов:")
-for feature in ['age', 'bmi', 'children', 'charges']:
+for feature in ['age', 'bmi', 'children', 'expenses']:
 	outliers, lower, upper = find_outliers_iqr(df, feature)
 	print(f"\n{feature}:")
 	print(f" Границы: [{lower:.2f}, {upper:.2f}]")
@@ -249,15 +233,15 @@ plt.title('Корреляционная матрица после обработ
 plt.tight_layout()
 plt.show()
 # Выводим корреляции с целевой переменной
-print("\nКорреляция всех признаков с charges:")
-target_correlations = correlation_matrix['charges'].sort_values(ascending=False)
+print("\nКорреляция всех признаков с expenses:")
+target_correlations = correlation_matrix['expenses'].sort_values(ascending=False)
 for feature, corr in target_correlations.items():
-	if feature != 'charges':
+	if feature != 'expenses':
 		print(f"• {feature}: {corr:.3f}")
 
 # Определяем признаки (X) и целевую переменную (y)
-X = df_processed.drop('charges', axis=1)
-y = df_processed['charges']
+X = df_processed.drop('expenses', axis=1)
+y = df_processed['expenses']
 print("Признаки (X):")
 print(X.columns.tolist())
 print(f"Размер X: {X.shape}")
@@ -427,19 +411,19 @@ print("="*50)
 # Анализ данных
 print("1. АНАЛИЗ ДАННЫХ:")
 print(f" • Датасет содержит {len(df)} записей без пропусков")
-print(f" • Средняя стоимость страховки: ${df['charges'].mean():.2f}")
-print(f" • Разброс стоимости: от ${df['charges'].min():.2f} до ${df['charges'].max():.2f}")
+print(f" • Средняя стоимость страховки: ${df['expenses'].mean():.2f}")
+print(f" • Разброс стоимости: от ${df['expenses'].min():.2f} до ${df['expenses'].max():.2f}")
 
 # Важные закономерности
 print("\n2. ВАЖНЫЕ ЗАКОНОМЕРНОСТИ:")
-smoker_effect = df.groupby('smoker')['charges'].mean()
+smoker_effect = df.groupby('smoker')['expenses'].mean()
 if len(smoker_effect) > 1:
 	difference = smoker_effect['yes'] - smoker_effect['no']
 	print(f" • Курящие платят в среднем на ${difference:.2f} больше")
 
-age_corr = df['age'].corr(df['charges'])
+age_corr = df['age'].corr(df['expenses'])
 print(f" • Корреляция возраста со стоимостью: {age_corr:.3f}")
-bmi_corr = df['bmi'].corr(df['charges'])
+bmi_corr = df['bmi'].corr(df['expenses'])
 print(f" • Корреляция ИМТ со стоимостью: {bmi_corr:.3f}")
 # Качество модели
 print(f"\n3. КАЧЕСТВО МОДЕЛИ:")
@@ -447,18 +431,49 @@ print(f" • R² = {r2:.3f} (модель объясняет {r2*100:.1f}% ва�
 print(f" • Средняя ошибка: ${mae:.2f}")
 print(f" • Самый важный фактор: {feature_importance.iloc[-1]['Признак']}")
 
-print("\nРЕКОМЕНДАЦИИ ДЛЯ СТРАХОВОЙ КОМПАНИИ:")
-print("="*50)
-print("1. ЦЕНООБРАЗОВАНИЕ:")
-print(" • Основной фактор риска - курение")
-print(" • Возраст и ИМТ также влияют на стоимость")
-print(" • Количество детей имеет умеренное влияние")
-print("\n2. УЛУЧШЕНИЕ МОДЕЛИ:")
 
-print(" • Собрать больше данных о здоровье клиентов")
-print(" • Добавить информацию о хронических заболеваниях")
-print(" • Учесть семейную историю болезней")
-print("\n3. БИЗНЕС-ПРИМЕНЕНИЕ:")
-print(" • Использовать модель для автоматического расчета премий")
-print(" • Выявлять клиентов с высоким риском")
-print(" • Разрабатывать программы стимулирования здорового образа жизни")
+# ЗАДАНИЯ ДЛЯ САМОСТОЯТЕЛЬНОЙ РАБОТЫ
+
+# ЗАДАНИЕ 1. Дополнительный анализ
+
+# 1.1. График зависимости от возраста для курящих/некурящих
+plt.figure(figsize=(10, 6))
+for smoker_status in df['smoker'].unique():
+	subset = df[df['smoker'] == smoker_status]
+	plt.scatter(subset['age'], subset['expenses'], label=f'Курение: {smoker_status}', alpha=0.6)
+plt.xlabel('Возраст')
+plt.ylabel('Стоимость страховки')
+plt.title('Зависимость стоимости от возраста (курящие vs некурящие)')
+plt.legend()
+plt.show()
+
+# 1.2. Средний ИМТ по регионам
+print("Средний ИМТ по регионам:")
+print(df.groupby('region')['bmi'].mean().sort_values(ascending=False))
+
+# 1.3. Возраст с максимальной стоимостью
+max_charge_age = df.loc[df['expenses'].idxmax(), 'age']
+max_charge_value = df['expenses'].max()
+print(f"Максимальная стоимость ${max_charge_value:.2f} в возрасте {max_charge_age} лет")
+
+
+# 2.1 и 2.2
+df_v2 = df.copy()
+bins = [17, 30, 50, 100]
+labels = ['young', 'middle', 'senior']
+df_v2['age_group'] = pd.cut(df_v2['age'], bins=bins, labels=labels)
+df_v2['high_bmi'] = (df_v2['bmi'] > 30).astype(int)
+
+# Кодирование
+df_v2 = pd.concat([df_v2, pd.get_dummies(df_v2['age_group'], prefix='age', drop_first=True)], axis=1)
+df_v2['smoker_enc'] = LabelEncoder().fit_transform(df_v2['smoker'])
+df_v2['sex_enc'] = LabelEncoder().fit_transform(df_v2['sex'])
+df_v2 = pd.concat([df_v2, pd.get_dummies(df_v2['region'], prefix='region', drop_first=True)], axis=1)
+
+X2 = df_v2.drop(['expenses', 'smoker', 'sex', 'region', 'age_group'], axis=1)
+X2_train, X2_test, y2_train, y2_test = train_test_split(X2, y, test_size=0.2, random_state=42)
+model_v2 = LinearRegression().fit(X2_train, y2_train)
+r2_v2 = r2_score(y2_test, model_v2.predict(X2_test))
+
+print(f"R² базовой модели:              {r2:.3f}")
+print(f"R² модели с новыми признаками:  {r2_v2:.3f}")
