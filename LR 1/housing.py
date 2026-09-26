@@ -896,3 +896,127 @@ print("  • Можно добавить внешние данные (эконо
 print("  • Стоит исследовать нелинейные модели для дальнейшего улучшения")
 
 
+# Задания для самостоятельной работы
+
+# Задание 1. Дополнительные признаки
+def create_additional_features(dataframe):
+    df_new = dataframe.copy()
+    
+    # PricePerSqFt
+    if 'SalePrice' in df_new.columns and 'GrLivArea' in df_new.columns:
+        df_new['PricePerSqFt'] = df_new['SalePrice'] / (df_new['GrLivArea'] + 1)
+    
+    # AgeCategory
+    if 'HouseAge' in df_new.columns:
+        df_new['AgeCategory'] = pd.cut(df_new['HouseAge'], bins=[0, 10, 30, 100], labels=['New', 'Medium', 'Old'])
+    
+    # HasGarage
+    if 'GarageArea' in df_new.columns:
+        df_new['HasGarage'] = (df_new['GarageArea'] > 0).astype(int)
+    
+    return df_new
+
+# Задание 2. Улучшение обработки пропусков
+
+def compare_imputation_methods(dataframe, feature, target='SalePrice'):
+    """Сравнивает различные методы заполнения пропусков (из методички)"""
+    if feature not in dataframe.columns or dataframe[feature].isnull().sum() == 0:
+        print(f"Признак {feature} не найден или не содержит пропусков")
+        return
+    
+    # Создаем копии данных
+    df_mean = dataframe.copy()
+    df_median = dataframe.copy()
+    df_knn = dataframe.copy()
+    
+    # Метод 1: Среднее значение
+    mean_imputer = SimpleImputer(strategy='mean')
+    df_mean[feature] = mean_imputer.fit_transform(df_mean[[feature]])
+    
+    # Метод 2: Медиана
+    median_imputer = SimpleImputer(strategy='median')
+    df_median[feature] = median_imputer.fit_transform(df_median[[feature]])
+    
+    # Метод 3: KNN Imputer
+    numeric_cols = dataframe.select_dtypes(include=[np.number]).columns.tolist()
+    if 'Id' in numeric_cols:
+        numeric_cols.remove('Id')
+    if target in numeric_cols:
+        numeric_cols.remove(target)
+        
+    knn_imputer = KNNImputer(n_neighbors=5)
+    df_knn[numeric_cols] = knn_imputer.fit_transform(df_knn[numeric_cols])
+    
+    # Сравниваем корреляции с целевой переменной
+    print(f"СРАВНЕНИЕ МЕТОДОВ ЗАПОЛНЕНИЯ ДЛЯ '{feature}':")
+    print("-" * 50)
+    print(f"Корреляция с {target}:")
+    print(f"  Среднее : {df_mean[feature].corr(df_mean[target]):.3f}")
+    print(f"  Медиана : {df_median[feature].corr(df_median[target]):.3f}")
+    print(f"  KNN     : {df_knn[feature].corr(df_knn[target]):.3f}")
+
+# Демонстрируем на примере LotFrontage (классический признак с пропусками в Ames)
+# Берем исходный df, так как в df_processed пропуски уже заполнены
+if 'LotFrontage' in df.columns and df['LotFrontage'].isnull().sum() > 0:
+    compare_imputation_methods(df, 'LotFrontage')
+else:
+    print("Признак LotFrontage не найден или не имеет пропусков в исходном df.")
+
+
+# Задание 3. Анализ остатков
+
+# Проходим по всем обученным моделям
+for model_name, model in models.items():
+    print(f"\n--- Анализ остатков для модели: {model_name} ---")
+    
+    # Делаем предсказания (учитываем, что Ridge и Lasso обучались на масштабированных данных)
+    if model_name == 'Linear':
+        preds = model.predict(X_test)
+    else:
+        preds = model.predict(X_test_scaled)
+    
+    # Вычисляем остатки
+    residuals = y_test - preds
+    
+    # Строим графики
+    fig, axes = plt.subplots(1, 2, figsize=(14, 5))
+    
+    # График 1: Остатки vs Предсказанные значения
+    axes[0].scatter(preds, residuals, alpha=0.6, color='green')
+    axes[0].axhline(y=0, color='r', linestyle='--')
+    axes[0].set_xlabel('Предсказанные значения (log SalePrice)')
+    axes[0].set_ylabel('Остатки')
+    axes[0].set_title(f'Остатки vs Предсказанные ({model_name})')
+    
+    # График 2: Q-Q plot для проверки нормальности
+    stats.probplot(residuals, dist="norm", plot=axes[1])
+    axes[1].set_title(f'Q-Q plot остатков ({model_name})')
+    
+    plt.tight_layout()
+    plt.show()
+
+# Задание 4. Кросс-валидация
+
+def cross_validate_models(models, X, y, cv=10):
+    """Применяет кросс-валидацию ко всем моделям и выводит результаты"""
+    print("РЕЗУЛЬТАТЫ КРОСС-ВАЛИДАЦИИ:")
+    print("="*40)
+    
+    for model_name, model in models.items():
+        if model_name == 'Linear':
+            # Для обычной линейной регрессии используем исходные данные
+            scores = cross_val_score(model, X, y, cv=cv, scoring='r2')
+        else:
+            # Для регуляризованных моделей (Ridge, Lasso) данные нужно масштабировать
+            scaler = StandardScaler()
+            X_scaled = scaler.fit_transform(X)
+            scores = cross_val_score(model, X_scaled, y, cv=cv, scoring='r2')
+        
+        print(f"Модель: {model_name}")
+        print(f"  Среднее R²:          {scores.mean():.4f}")
+        print(f"  Стд. отклонение:     {scores.std():.4f}")
+        print(f"  95% доверительный интервал: [{scores.mean() - 2*scores.std():.4f}, {scores.mean() + 2*scores.std():.4f}]")
+        print()
+
+# Запуск кросс-валидации
+cross_validate_models(models, X_processed, y_processed, cv=10)

@@ -50,6 +50,35 @@ print(f"R² модели с новыми признаками:  {r2_v2:.3f}")
 ### Цель задачи
 Построить продвинутую модель регрессии для предсказания цены дома, используя: - Обработку пропущенных значений - Продвинутый Feature Engineering - Сравнение различных типов регрессий (Ridge, Lasso) - Подбор гиперпараметров
 ### Задание 1. Дополнительный Feature Engineering
+#### 1.1-1.3 Признаки PricePerSqFt, AgeCategory, HasGarage
+```python
+def create_additional_features(dataframe):
+    df_new = dataframe.copy()
+    
+    # PricePerSqFt (только для демонстрации, в реальности цена - это то, что мы предсказываем)
+    if 'SalePrice' in df_new.columns and 'GrLivArea' in df_new.columns:
+        df_new['PricePerSqFt'] = df_new['SalePrice'] / (df_new['GrLivArea'] + 1)
+    
+    # AgeCategory
+    if 'HouseAge' in df_new.columns:
+        df_new['AgeCategory'] = pd.cut(df_new['HouseAge'], bins=[0, 10, 30, 100], labels=['New', 'Medium', 'Old'])
+    
+    # HasGarage
+    if 'GarageArea' in df_new.columns:
+        df_new['HasGarage'] = (df_new['GarageArea'] > 0).astype(int)
+    
+    return df_new
+```
 ### Задание 2. Улучшение обработки пропусков
+![2.1-2.3](screenshots/housing-2.1-2.3.png)
+Метод KNNImputer теоретически дает лучшее качество модели.
 ### Задание 3. Анализ остатков
+![3.1-3.3](screenshots/housing-3.1-3.3-1.png)
+![3.1-3.3](screenshots/housing-3.1-3.3-2.png)
+![3.1-3.3](screenshots/housing-3.1-3.3-3.png)
+На графиках видны незначительные паттерны. На графиках "Остатки vs Предсказанные" разброс остатков примерно одинаков по всему диапазону, что говорит об адекватности линейной модели. На Q-Q Plot центральная часть распределения ложится на прямую, но левый хвост отклоняется вниз, то есть модель переоценивает стоимость некоторых домов.
 ### Задание 4. Кросс-валидация
+![4.1-4.3](screenshots/housing-4.1-4.3.png)
+Средние значения результатов при кросс-валидации близки к обычному train/test.
+
+Самую высокую стабильность показала модель Lasso. У нее наименьшее стандартное отклонение и самый узникй доверительный интервал.
